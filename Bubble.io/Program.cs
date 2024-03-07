@@ -42,7 +42,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 builder.Services.AddCors(options =>
-    options.AddPolicy(name: "Bubble.io.portal",
+    options.AddPolicy(name: "bubble.io.portal",
     policy => 
     {
         policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
@@ -61,7 +61,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("Bubble.io.portal");
+app.UseCors("bubble.io.portal");
 
 app.MapIdentityApi<IdentityUser>();
 
