@@ -41,6 +41,17 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
+builder.Services.AddCors(options =>
+    options.AddPolicy(name: "Bubble.io.portal",
+    policy => 
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowAnyOrigin();
+    })
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -49,6 +60,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("Bubble.io.portal");
 
 app.MapIdentityApi<IdentityUser>();
 
