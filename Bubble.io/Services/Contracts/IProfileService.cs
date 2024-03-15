@@ -4,6 +4,7 @@ namespace Bubble.io.Services.Contracts
 {
     public interface IProfileService
     {
-        Task Add(DTOProfile request);
+        Task<DTOProfileBasicInfo?> Get(string identityId);
+        Task Add(DTOProfileBasicInfo request);
     }
 }

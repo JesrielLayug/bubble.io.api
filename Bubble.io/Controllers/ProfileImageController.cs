@@ -1,27 +1,25 @@
 ﻿using Bubble.io.Entities.DTOs;
 using Bubble.io.Services.Contracts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Bubble.io.Controllers
 {
-    [Authorize]
     [Route("[controller]/[action]")]
     [ApiController]
-    public class ProfileController : ControllerBase
+    public class ProfileImageController : ControllerBase
     {
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IProfileService profileService;
+        private readonly IProfileImageService profileImageService;
 
-        public ProfileController(
+        public ProfileImageController(
             IHttpContextAccessor httpContextAccessor,
-            IProfileService profileService
+            IProfileImageService profileImageService
             )
         {
             this.httpContextAccessor = httpContextAccessor;
-            this.profileService = profileService;
+            this.profileImageService = profileImageService;
         }
 
         [HttpGet]
@@ -32,45 +30,37 @@ namespace Bubble.io.Controllers
                 if (httpContextAccessor.HttpContext == null)
                     return Unauthorized();
 
-                string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+                string currentUserId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                var basicInfo = await profileService.Get(identityId);
+                var image = await profileImageService.Get(currentUserId);
 
-
-                if(basicInfo != null)
+                if(image != null)
                 {
                     return new OkObjectResult(new
                     {
-                        id = identityId,
-                        firstname = basicInfo.firstname,
-                        lastname = basicInfo.lastname,
-                        email = email,
-                        bio = basicInfo.bio
+                        identityId = currentUserId,
+                        url = image.imageUrl,
+                        data = image.imageData
                     });
                 }
-
                 return new NotFoundObjectResult(null);
-
             }
             catch
             {
-                return BadRequest("Internal server error");
+                return BadRequest();
             }
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] DTOProfileBasicInfo request)
+        public async Task<IActionResult> Add([FromBody] DTOProfileImage request)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await profileService.Add(request);
-                    return Ok("Successfully updated your profile.");
+                    await profileImageService.Add(request);
+                    return Ok("Successfully uploaded the image.");
                 }
-
                 return BadRequest("Internal server error");
             }
             catch
@@ -78,6 +68,5 @@ namespace Bubble.io.Controllers
                 return Unauthorized();
             }
         }
-
     }
 }

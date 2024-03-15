@@ -1,5 +1,6 @@
 ﻿using Bubble.io.Data.Contracts;
 using Bubble.io.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bubble.io.Data
 {
@@ -15,6 +16,11 @@ namespace Bubble.io.Data
         {
             await db.ProfileImages.AddAsync(image);
             await db.SaveChangesAsync();
+        }
+
+        public async Task<ProfileImage> GetByIdentityId(string id)
+        {
+            return await db.ProfileImages.FirstOrDefaultAsync(p => p.IdentityId == id);
         }
     }
 }

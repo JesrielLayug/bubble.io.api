@@ -4,6 +4,7 @@ namespace Bubble.io.Data.Contracts
 {
     public interface IProfileRepository
     {
-       Task Add(Profile profile);
+        Task<Profile> GetByIdentityId(string id);
+        Task Add(Profile profile);
     }
 }

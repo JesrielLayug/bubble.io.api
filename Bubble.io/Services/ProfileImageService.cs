@@ -38,5 +38,25 @@ namespace Bubble.io.Services
                 throw;
             }
         }
+
+        public async Task<DTOProfileImage?> Get(string identityId)
+        {
+            try
+            {
+                var domainImage = await profileImageRepository.GetByIdentityId(identityId);
+                if(domainImage != null)
+                    return new DTOProfileImage
+                    {
+                        imageUrl = domainImage.ImageUrl,
+                        imageData = domainImage.ImageData,
+                    };
+
+                return null;
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

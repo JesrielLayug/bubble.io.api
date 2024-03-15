@@ -2,6 +2,8 @@
 using Bubble.io.Entities;
 using Bubble.io.Entities.DTOs;
 using Bubble.io.Services.Contracts;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Bubble.io.Services
@@ -16,7 +18,7 @@ namespace Bubble.io.Services
             this.profileRepository = profileRepository;
             this.httpContextAccessor = httpContextAccessor;
         }
-        public async Task Add(DTOProfile request)
+        public async Task Add(DTOProfileBasicInfo request)
         {
             try
             {
@@ -32,6 +34,27 @@ namespace Bubble.io.Services
 
                     await profileRepository.Add(newProfile);
                 }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<DTOProfileBasicInfo?> Get(string identityId)
+        {
+            try
+            {
+                var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
+                if(domainBasicInfo != null)
+                    return new DTOProfileBasicInfo
+                    {
+                        firstname = domainBasicInfo.Fistname,
+                        lastname = domainBasicInfo.Lastname,
+                        bio = domainBasicInfo.Bio,
+                    };
+
+                return null;
             }
             catch
             {
