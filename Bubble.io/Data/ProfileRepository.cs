@@ -22,5 +22,11 @@ namespace Bubble.io.Data
         {
             return await db.Profiles.FirstOrDefaultAsync(p => p.IdentityId == id);
         }
+
+        public async Task Update(Profile profile)
+        {
+            db.Profiles.Update(profile);
+            await db.SaveChangesAsync();
+        }
     }
 }

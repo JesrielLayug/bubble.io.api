@@ -13,10 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
-builder.Services.AddScoped<IProfileImageRepository, ProfileImageRepository>();
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IProfileImageService, ProfileImageService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -70,6 +68,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseCors("bubble.io.portal");
 

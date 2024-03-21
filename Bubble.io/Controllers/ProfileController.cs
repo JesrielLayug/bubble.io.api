@@ -61,14 +61,22 @@ namespace Bubble.io.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] DTOProfileBasicInfo request)
+        public async Task<IActionResult> Add([FromForm] DTOProfileBasicInfo request)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await profileService.Add(request);
-                    return Ok("Successfully updated your profile.");
+                    if (httpContextAccessor.HttpContext != null)
+                    {
+                        var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        await profileService.Add(request, userId);
+
+                        return Ok("Successfully updated your profile.");
+                    }
+                    else
+                        return Unauthorized();
                 }
 
                 return BadRequest("Internal server error");

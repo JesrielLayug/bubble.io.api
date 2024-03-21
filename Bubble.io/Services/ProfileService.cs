@@ -18,21 +18,43 @@ namespace Bubble.io.Services
             this.profileRepository = profileRepository;
             this.httpContextAccessor = httpContextAccessor;
         }
-        public async Task Add(DTOProfileBasicInfo request)
+        public async Task Add(DTOProfileBasicInfo request, string userId)
         {
             try
             {
-                if(httpContextAccessor.HttpContext != null)
-                {
-                    var newProfile = new Profile
-                    {
-                        Fistname = request.firstname,
-                        Lastname = request.lastname,
-                        Bio = request.bio,
-                        IdentityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
-                    };
+                var existingProfile = await profileRepository.GetByIdentityId(userId);
+                string imageUrl = string.Empty;
+                var profile = new Profile();
 
-                    await profileRepository.Add(newProfile);
+                if (request.imageData != null)
+                {
+                    imageUrl = "./Resources/" + request.imageData.FileName;
+                    using (var fileStream = new FileStream(imageUrl, FileMode.Create))
+                    {
+                        await request.imageData.CopyToAsync(fileStream);
+                    }
+                }
+
+                if (existingProfile == null)
+                {
+                    profile.Fistname = request.firstname;
+                    profile.Lastname = request.lastname;
+                    profile.Bio = request.bio;
+                    profile.ImageUrl = imageUrl;
+                    profile.IdentityId = userId;
+
+                    await profileRepository.Add(profile);
+                }
+                else
+                {
+
+                    existingProfile.Fistname = request.firstname;
+                    existingProfile.Lastname = request.lastname;
+                    existingProfile.Bio = request.bio;
+                    existingProfile.ImageUrl = imageUrl;
+                    existingProfile.IdentityId = userId;
+
+                    await profileRepository.Update(existingProfile);
                 }
             }
             catch

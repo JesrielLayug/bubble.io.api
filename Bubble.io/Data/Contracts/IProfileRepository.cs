@@ -6,5 +6,6 @@ namespace Bubble.io.Data.Contracts
     {
         Task<Profile> GetByIdentityId(string id);
         Task Add(Profile profile);
+        Task Update(Profile profile);
     }
 }

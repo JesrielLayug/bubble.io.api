@@ -1,8 +1,10 @@
-﻿namespace Bubble.io.Entities.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Bubble.io.Entities.DTOs
 {
     public class DTOProfileImage
     {
-        public byte[] imageData { get; set; }
+        public IFormFile imageData { get; set; }
         public string imageUrl { get; set; } = string.Empty;
     }
 }
