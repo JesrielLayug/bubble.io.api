@@ -16,7 +16,7 @@ namespace Bubble.io.Extensions
                 select new DTOProfile
                 {
                     id = profile.IdentityId,
-                    fistname = profile.Fistname,
+                    fistname = profile.Firstname,
                     lastname = profile.Lastname,
                     bio = profile.Bio,
                     imageUrl = image.ImageUrl,

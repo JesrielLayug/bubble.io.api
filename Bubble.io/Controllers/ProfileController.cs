@@ -24,66 +24,65 @@ namespace Bubble.io.Controllers
             this.profileService = profileService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            try
-            {
-                if (httpContextAccessor.HttpContext == null)
-                    return Unauthorized();
+        //[HttpGet]
+        //public async Task<IActionResult> Get()
+        //{
+        //    try
+        //    {
+        //        if (httpContextAccessor.HttpContext == null)
+        //            return Unauthorized();
 
-                string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+        //        string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //        string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-                var basicInfo = await profileService.Get(identityId);
+        //        var basicInfo = await profileService.Get(identityId);
 
 
-                if(basicInfo != null)
-                {
-                    return new OkObjectResult(new
-                    {
-                        id = identityId,
-                        firstname = basicInfo.firstname,
-                        lastname = basicInfo.lastname,
-                        email = email,
-                        bio = basicInfo.bio
-                    });
-                }
+        //        if(basicInfo != null)
+        //        {
+        //            return new OkObjectResult(new
+        //            {
+        //                id = identityId,
+        //                firstname = basicInfo.firstname,
+        //                lastname = basicInfo.lastname,
+        //                email = email,
+        //                bio = basicInfo.bio
+        //            });
+        //        }
 
-                return new NotFoundObjectResult(null);
+        //        return new NotFoundObjectResult(null);
 
-            }
-            catch
-            {
-                return BadRequest("Internal server error");
-            }
-        }
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest("Internal server error");
+        //    }
+        //}
 
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] DTOProfileBasicInfo request)
+        public async Task<IActionResult> AddOrUpdate([FromBody] DTORequestData request)
         {
             try
             {
-                if (ModelState.IsValid)
+                if (httpContextAccessor.HttpContext != null)
                 {
-                    if (httpContextAccessor.HttpContext != null)
-                    {
-                        var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                        await profileService.Add(request, userId);
+                    await profileService.AddOrUpdate(request.Profile, userId, request.ImageData);
 
-                        return Ok("Successfully updated your profile.");
-                    }
-                    else
-                        return Unauthorized();
+                    return Ok("Successfully updated your profile.");
                 }
-
-                return BadRequest("Internal server error");
+                else
+                {
+                    return Unauthorized();
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return Unauthorized();
+                // Log the exception
+                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error");
             }
         }
 

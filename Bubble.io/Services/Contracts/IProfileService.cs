@@ -1,10 +1,11 @@
-﻿using Bubble.io.Entities.DTOs;
+﻿using Bubble.io.Entities;
+using Bubble.io.Entities.DTOs;
 
 namespace Bubble.io.Services.Contracts
 {
     public interface IProfileService
     {
-        Task<DTOProfileBasicInfo?> Get(string identityId);
-        Task Add(DTOProfileBasicInfo request, string userId);
+        //Task<DTORequestData?> Get(string identityId);
+        Task AddOrUpdate(Profile profile, string userId, string imageData);
     }
 }

@@ -9,7 +9,7 @@ namespace Bubble.io.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? Id { get; set; }
-        public string? Fistname { get; set; } = string.Empty;
+        public string? Firstname { get; set; } = string.Empty;
         public string? Lastname { get; set; } = string.Empty;
         public string? Bio {  get; set; } = string.Empty;
         public string? ImageUrl {  get; set; } = string.Empty;

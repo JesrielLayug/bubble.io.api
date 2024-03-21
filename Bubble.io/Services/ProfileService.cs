@@ -18,70 +18,60 @@ namespace Bubble.io.Services
             this.profileRepository = profileRepository;
             this.httpContextAccessor = httpContextAccessor;
         }
-        public async Task Add(DTOProfileBasicInfo request, string userId)
+        public async Task AddOrUpdate(Profile profile, string userId, string imageData)
         {
             try
             {
                 var existingProfile = await profileRepository.GetByIdentityId(userId);
-                string imageUrl = string.Empty;
-                var profile = new Profile();
+                profile.IdentityId = userId;
 
-                if (request.imageData != null)
+                // Process and save image data
+                if (!string.IsNullOrEmpty(imageData))
                 {
-                    imageUrl = "./Resources/" + request.imageData.FileName;
-                    using (var fileStream = new FileStream(imageUrl, FileMode.Create))
-                    {
-                        await request.imageData.CopyToAsync(fileStream);
-                    }
+                    string imageUrl = "./Resources/" + Guid.NewGuid().ToString() + ".png";
+                    byte[] imageBytes = Convert.FromBase64String(imageData);
+
+                    await File.WriteAllBytesAsync(imageUrl, imageBytes);
+
+                    profile.ImageUrl = imageUrl;
                 }
 
                 if (existingProfile == null)
                 {
-                    profile.Fistname = request.firstname;
-                    profile.Lastname = request.lastname;
-                    profile.Bio = request.bio;
-                    profile.ImageUrl = imageUrl;
-                    profile.IdentityId = userId;
-
                     await profileRepository.Add(profile);
                 }
                 else
                 {
-
-                    existingProfile.Fistname = request.firstname;
-                    existingProfile.Lastname = request.lastname;
-                    existingProfile.Bio = request.bio;
-                    existingProfile.ImageUrl = imageUrl;
-                    existingProfile.IdentityId = userId;
-
-                    await profileRepository.Update(existingProfile);
+                    profile.Id = existingProfile.Id; 
+                    await profileRepository.Update(profile);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 throw;
             }
         }
 
-        public async Task<DTOProfileBasicInfo?> Get(string identityId)
-        {
-            try
-            {
-                var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
-                if(domainBasicInfo != null)
-                    return new DTOProfileBasicInfo
-                    {
-                        firstname = domainBasicInfo.Fistname,
-                        lastname = domainBasicInfo.Lastname,
-                        bio = domainBasicInfo.Bio,
-                    };
+        //public async Task<DTORequestData?> Get(string identityId)
+        //{
+        //    try
+        //    {
+        //        var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
+        //        if(domainBasicInfo != null)
+        //            return new DTORequestData
+        //            {
+        //                firstname = domainBasicInfo.Firstname,
+        //                lastname = domainBasicInfo.Lastname,
+        //                bio = domainBasicInfo.Bio,
+        //            };
 
-                return null;
-            }
-            catch
-            {
-                throw;
-            }
-        }
+        //        return null;
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //}
     }
 }
