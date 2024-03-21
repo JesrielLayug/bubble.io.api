@@ -4,3 +4,8 @@ GET {{Bubble.io_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST {{Bubble.io_HostAddress}}/profile/
+Accept: application/json
+
+###
