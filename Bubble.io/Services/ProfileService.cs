@@ -18,33 +18,34 @@ namespace Bubble.io.Services
             this.profileRepository = profileRepository;
             this.httpContextAccessor = httpContextAccessor;
         }
-        public async Task AddOrUpdate(Profile profile, string userId, string imageData)
+        public async Task Add(DTOProfileRequest profile, string userId)
         {
             try
             {
-                var existingProfile = await profileRepository.GetByIdentityId(userId);
-                profile.IdentityId = userId;
-
                 // Process and save image data
-                if (!string.IsNullOrEmpty(imageData))
+                if (!string.IsNullOrEmpty(profile.ImageData))
                 {
-                    string imageUrl = "./Resources/" + Guid.NewGuid().ToString() + ".png";
-                    byte[] imageBytes = Convert.FromBase64String(imageData);
+                    string directoryPath = $"./Resources/{userId}";
+                    Directory.CreateDirectory(directoryPath);
+
+                    string imageUrl = Path.Combine(directoryPath, profile.ImageUrl.Replace('\\', '/'));
+                    byte[] imageBytes = Convert.FromBase64String(profile.ImageData);
 
                     await File.WriteAllBytesAsync(imageUrl, imageBytes);
 
-                    profile.ImageUrl = imageUrl;
+                    profile.ImageUrl = imageUrl.Replace('\\', '/');
                 }
 
-                if (existingProfile == null)
+                var newProfile = new Profile
                 {
-                    await profileRepository.Add(profile);
-                }
-                else
-                {
-                    profile.Id = existingProfile.Id; 
-                    await profileRepository.Update(profile);
-                }
+                    Firstname = profile.firstname,
+                    Lastname = profile.lastname,
+                    Bio = profile.bio,
+                    ImageUrl = profile.ImageUrl,
+                    IdentityId = userId
+                };
+
+                await profileRepository.Add(newProfile);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using Bubble.io.Entities.DTOs;
+﻿using Bubble.io.Entities;
+using Bubble.io.Entities.DTOs;
 using Bubble.io.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -61,22 +62,26 @@ namespace Bubble.io.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddOrUpdate([FromBody] DTORequestData request)
+        public async Task<IActionResult> Add([FromBody] DTOProfileRequest request)
         {
             try
             {
-                if (httpContextAccessor.HttpContext != null)
+                if(ModelState.IsValid)
                 {
-                    var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (httpContextAccessor.HttpContext != null)
+                    {
+                        var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                    await profileService.AddOrUpdate(request.Profile, userId, request.ImageData);
+                        await profileService.Add(request, userId);
 
-                    return Ok("Successfully updated your profile.");
+                        return Ok();
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
                 }
-                else
-                {
-                    return Unauthorized();
-                }
+                return BadRequest();
             }
             catch (Exception ex)
             {
