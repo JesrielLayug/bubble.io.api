@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bubble.io.Entities.DTOs
 {
-    public class DTOProfile
+    public class DTOProfileData
     {
         public string id { get; set; }
         public string fistname { get; set; } = string.Empty;

@@ -6,6 +6,6 @@ namespace Bubble.io.Services.Contracts
     public interface IProfileService
     {
         //Task<DTORequestData?> Get(string identityId);
-        Task AddOrUpdate(Profile profile, string userId, string imageData);
+        Task Add(DTOProfileRequest profile, string userId);
     }
 }
