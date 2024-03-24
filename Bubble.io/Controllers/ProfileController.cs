@@ -25,40 +25,27 @@ namespace Bubble.io.Controllers
             this.profileService = profileService;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Get()
-        //{
-        //    try
-        //    {
-        //        if (httpContextAccessor.HttpContext == null)
-        //            return Unauthorized();
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                if (httpContextAccessor.HttpContext == null)
+                    return Unauthorized();
 
-        //        string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //        string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+                string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-        //        var basicInfo = await profileService.Get(identityId);
+                var basicInfo = await profileService.Get(identityId, email);
 
+                return new OkObjectResult(basicInfo);
 
-        //        if(basicInfo != null)
-        //        {
-        //            return new OkObjectResult(new
-        //            {
-        //                id = identityId,
-        //                firstname = basicInfo.firstname,
-        //                lastname = basicInfo.lastname,
-        //                email = email,
-        //                bio = basicInfo.bio
-        //            });
-        //        }
-
-        //        return new NotFoundObjectResult(null);
-
-        //    }
-        //    catch
-        //    {
-        //        return BadRequest("Internal server error");
-        //    }
-        //}
+            }
+            catch
+            {
+                return BadRequest("Internal server error");
+            }
+        }
 
 
         [HttpPost]

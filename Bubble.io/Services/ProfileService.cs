@@ -54,25 +54,50 @@ namespace Bubble.io.Services
             }
         }
 
-        //public async Task<DTORequestData?> Get(string identityId)
-        //{
-        //    try
-        //    {
-        //        var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
-        //        if(domainBasicInfo != null)
-        //            return new DTORequestData
-        //            {
-        //                firstname = domainBasicInfo.Firstname,
-        //                lastname = domainBasicInfo.Lastname,
-        //                bio = domainBasicInfo.Bio,
-        //            };
+        public async Task<DTOProfileData?> Get(string identityId, string email)
+        {
+            try
+            {
+                var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
 
-        //        return null;
-        //    }
-        //    catch
-        //    {
-        //        throw;
-        //    }
-        //}
+                byte[] imageBytes;
+
+                if (File.Exists(domainBasicInfo.ImageUrl))
+                    imageBytes = await File.ReadAllBytesAsync(domainBasicInfo.ImageUrl);
+                else
+                    imageBytes = await File.ReadAllBytesAsync($"./Resources/DefaultUserProfile");
+
+                string base64Image = Convert.ToBase64String(imageBytes);
+
+                if (domainBasicInfo != null)
+                {
+                    return new DTOProfileData
+                    {
+                        id = domainBasicInfo.Id,
+                        firstname = domainBasicInfo.Firstname,
+                        lastname = domainBasicInfo.Lastname,
+                        bio = domainBasicInfo.Bio,
+                        email = email,
+                        imageUrl = domainBasicInfo.ImageUrl,
+                        imageData = base64Image
+                    };
+                }
+
+                return new DTOProfileData
+                {
+                    id = string.Empty,
+                    firstname = string.Empty,
+                    lastname = string.Empty,
+                    bio = string.Empty,
+                    email = email,
+                    imageUrl = string.Empty,
+                    imageData = base64Image
+                };
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }
