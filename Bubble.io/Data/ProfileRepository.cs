@@ -18,6 +18,11 @@ namespace Bubble.io.Data
             await db.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<Profile>> GetAllExceptCurrentUser(string id)
+        {
+            return await db.Profiles.Where(x => x.IdentityId != id).ToListAsync();
+        }
+
         public async Task<Profile> GetByIdentityId(string id)
         {
             return await db.Profiles.FirstOrDefaultAsync(p => p.IdentityId == id);

@@ -25,41 +25,43 @@ namespace Bubble.io.Controllers
             this.profileService = profileService;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Get()
-        //{
-        //    try
-        //    {
-        //        if (httpContextAccessor.HttpContext == null)
-        //            return Unauthorized();
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                DTOProfileData profle = new DTOProfileData();
 
-        //        string identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //        string email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+                var identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-        //        var basicInfo = await profileService.Get(identityId);
+                profle = await profileService.Get(identityId, email);
 
+                return new OkObjectResult(profle);
 
-        //        if(basicInfo != null)
-        //        {
-        //            return new OkObjectResult(new
-        //            {
-        //                id = identityId,
-        //                firstname = basicInfo.firstname,
-        //                lastname = basicInfo.lastname,
-        //                email = email,
-        //                bio = basicInfo.bio
-        //            });
-        //        }
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        //        return new NotFoundObjectResult(null);
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var identityId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
-        //    }
-        //    catch
-        //    {
-        //        return BadRequest("Internal server error");
-        //    }
-        //}
-
+                var users = await profileService.GetAllExceptCurrentUser(identityId, email);
+                return new OkObjectResult(users);
+            }
+            catch( Exception ex ) 
+            {
+                return BadRequest(ex.Message );
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] DTOProfileRequest request)
@@ -87,7 +89,33 @@ namespace Bubble.io.Controllers
             {
                 // Log the exception
                 Console.WriteLine(ex);
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex);
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] DTOProfileRequest request)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (httpContextAccessor.HttpContext == null)
+                        return Unauthorized();
+
+                    var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    await profileService.Update(request, userId);
+
+                    return Ok();
+                }
+
+                return BadRequest();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, ex);
             }
         }
 
