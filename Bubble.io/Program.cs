@@ -1,7 +1,9 @@
 using Bubble.io.Data;
 using Bubble.io.Data.Contracts;
+using Bubble.io.Hubs;
 using Bubble.io.Services;
 using Bubble.io.Services.Contracts;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -82,5 +84,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chat");
 
 app.Run();
