@@ -6,6 +6,6 @@ namespace Bubble.io.Services.Contracts
     public interface IChatService
     {
         Task Send(DTOChatMessageRequest chat);
-        Task<IEnumerable<DTOChatMessage?>> Get(string senderId, string recieverId);
+        Task<List<DTOChatContent>> GetChatHistory(string senderId, string receiverId);
     }
 }

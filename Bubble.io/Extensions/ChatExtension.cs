@@ -1,29 +1,55 @@
 ﻿using Bubble.io.Entities;
 using Bubble.io.Entities.DTOs;
+using System.Text.RegularExpressions;
 
 namespace Bubble.io.Extensions
 {
     public static class ChatExtension
     {
-        public static IEnumerable<DTOChatMessage>
-            convert(
+        public static DTOChatMessage Convert(
             this IEnumerable<ChatMessage> messages,
-            IEnumerable<Profile> users
-            )
+            IEnumerable<DTOProfileData> users
+        )
         {
-            return (from message in messages
-                    join sender in users on message.SenderId equals sender.IdentityId
-                    join receiver in users on message.ReceiverId equals receiver.IdentityId
-                    orderby message.Timestamp
-                    select new DTOChatMessage
-                    {
-                        senderId = sender.IdentityId,
-                        senderName = sender.Firstname,
-                        recieverId = receiver.IdentityId,
-                        recieverName = receiver.Firstname,
-                        content = message.Content,
-                        timeStamp = message.Timestamp.ToString(),
-                    }).ToList();
+            if (messages == null || !messages.Any() || users == null || !users.Any())
+                return null; 
+
+            var firstMessage = messages.First();
+
+            var senderProfile = users.FirstOrDefault(u => u.id == firstMessage.SenderId);
+            var receiverProfile = users.FirstOrDefault(u => u.id == firstMessage.ReceiverId);
+
+            if (senderProfile == null || receiverProfile == null)
+                return null; 
+
+            var chatContents = messages.Select(message => new DTOChatContent
+            {
+                content = message.Content,
+                timeStamp = message.Timestamp
+            }).OrderBy(chat => chat.timeStamp).ToList();
+
+            return new DTOChatMessage
+            {
+                sender = new DTOProfileData
+                {
+                    id = senderProfile.id,
+                    firstname = senderProfile.firstname,
+                    lastname = senderProfile.lastname,
+                    email = senderProfile.email,
+                    imageData = senderProfile.imageData,
+                    imageUrl = senderProfile.imageUrl
+                },
+                receiver = new DTOProfileData
+                {
+                    id = receiverProfile.id,
+                    firstname = receiverProfile.firstname,
+                    lastname = receiverProfile.lastname,
+                    email = receiverProfile.email,
+                    imageData = receiverProfile.imageData,
+                    imageUrl = receiverProfile.imageUrl
+                },
+                chats = chatContents
+            };
         }
     }
 }

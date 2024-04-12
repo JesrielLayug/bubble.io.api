@@ -11,24 +11,26 @@ namespace Bubble.io.Services
     public class ChatService : IChatService
     {
         private readonly IChatRepository chatRepository;
-        private readonly IProfileRepository profileRepository;
-        private readonly IHubContext<ChatHub> hubContext;
 
-        public ChatService(IChatRepository chatRepository, IProfileRepository profileRepository, IHubContext<ChatHub> hubContext)
+        public ChatService(IChatRepository chatRepository)
         {
             this.chatRepository = chatRepository;
-            this.profileRepository = profileRepository;
-            this.hubContext = hubContext;
         }
 
-        public async Task<IEnumerable<DTOChatMessage?>> Get(string senderId, string recieverId)
+        public async Task<List<DTOChatContent>> GetChatHistory(string senderId, string receiverId)
         {
-            var domainMessages = await chatRepository.GetAll(senderId, recieverId);
-            var users = await profileRepository.GetAll();
+            var chatMessages = await chatRepository.GetChatHistory(senderId, receiverId);
 
-            var chatMessages = domainMessages.convert(users);
+            var chatContents = chatMessages.Select(msg => new DTOChatContent
+            {
+                id = msg.Id,
+                senderId = senderId,
+                receiverId = receiverId,
+                content = msg.Content,
+                timeStamp = msg.Timestamp
+            }).ToList();
 
-            return chatMessages;
+            return chatContents;
         }
 
         public async Task Send(DTOChatMessageRequest chat)
@@ -42,7 +44,6 @@ namespace Bubble.io.Services
             };
 
             await chatRepository.Add(message);
-            await hubContext.Clients.All.SendAsync("RecieveMessage", chat.senderId, chat.receiverId, chat.content);
         }
     }
 }

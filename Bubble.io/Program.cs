@@ -15,8 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -58,7 +60,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
         .AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowAnyOrigin();
+        .AllowCredentials();
     })
 );
 

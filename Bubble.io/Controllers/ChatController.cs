@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace Bubble.io.Controllers
 {
     [Authorize]
-    [Route("api/[controller]/[action]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class ChatController : ControllerBase
     {
@@ -22,20 +22,11 @@ namespace Bubble.io.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Send(string recieverId, string content)
+        public async Task<IActionResult> Send([FromBody]DTOChatMessageRequest request)
         {
             try
             {
-                var senderId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                var message = new DTOChatMessageRequest
-                {
-                    senderId = senderId,
-                    receiverId = recieverId,
-                    content = content
-                };
-
-                await chatService.Send(message);
+                await chatService.Send(request);
                 return Ok();
             }
             catch (Exception ex)
@@ -44,22 +35,22 @@ namespace Bubble.io.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get(string receiverId)
-        {
-            try
-            {
-                var senderId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //[HttpGet]
+        //public async Task<IActionResult> Messages(string receiverId)
+        //{
+        //    try
+        //    {
+        //        var senderId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                var messages = await chatService.Get(senderId, receiverId);
+        //        var messages = await chatService.Get(senderId, receiverId);
 
-                return new OkObjectResult(messages);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //        return new OkObjectResult(messages);
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
         
     }
 }

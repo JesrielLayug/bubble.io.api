@@ -19,19 +19,14 @@ namespace Bubble.io.Data
             await db.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ChatMessage>> GetAll(string senderId, string reciverId)
+        public async Task<IEnumerable<ChatMessage>> GetChatHistory(string senderId, string receiverId)
         {
-            return await db.ChatMessages.Where(m => m.SenderId == senderId && m.ReceiverId == reciverId).ToListAsync();
+            return await db.ChatMessages
+                .Where(m =>
+                    (m.SenderId == senderId && m.ReceiverId == receiverId) ||
+                    (m.SenderId == receiverId && m.ReceiverId == senderId))
+                .OrderBy(m => m.Timestamp)
+                .ToListAsync();
         }
-
-
-        //public async Task<IEnumerable<ChatMessage>> Get(string senderId, string recieverId)
-        //{
-        //    return await db.ChatMessages
-        //        .Where(m => (m.SenderId == senderId && m.ReceiverId == recieverId)
-        //                 || (m.SenderId == recieverId && m.ReceiverId == senderId))
-        //        .OrderBy(m => m.Timestamp)
-        //        .ToListAsync();
-        //}
     }
 }

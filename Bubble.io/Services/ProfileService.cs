@@ -3,6 +3,7 @@ using Bubble.io.Entities;
 using Bubble.io.Entities.DTOs;
 using Bubble.io.Services.Contracts;
 using Bubble.io.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -14,10 +15,12 @@ namespace Bubble.io.Services
         private ImageDirectoryManager imageDirectoryManager = new ImageDirectoryManager();
 
         private readonly IProfileRepository profileRepository;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public ProfileService(IProfileRepository profileRepository)
+        public ProfileService(IProfileRepository profileRepository, IHttpContextAccessor httpContextAccessor)
         {
             this.profileRepository = profileRepository;
+            this.httpContextAccessor = httpContextAccessor;
         }
         public async Task Add(DTOProfileRequest profile, string userId)
         {
@@ -35,6 +38,45 @@ namespace Bubble.io.Services
             };
 
             await profileRepository.Add(newProfile);
+        }
+
+        public async Task<DTOProfileData> GetById(string identityId)
+        {
+            var email = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            var domainBasicInfo = await profileRepository.GetByIdentityId(identityId);
+
+            string base64Image;
+
+            if (domainBasicInfo != null)
+            {
+                base64Image = await imageDirectoryManager.GetUserImage(domainBasicInfo.ImageUrl);
+
+                return new DTOProfileData
+                {
+                    id = domainBasicInfo.Id,
+                    firstname = domainBasicInfo.Firstname,
+                    lastname = domainBasicInfo.Lastname,
+                    bio = domainBasicInfo.Bio,
+                    email = email,
+                    imageUrl = domainBasicInfo.ImageUrl,
+                    imageData = base64Image
+                };
+            }
+            else
+            {
+                base64Image = await imageDirectoryManager.GetDefaultImage();
+
+                return new DTOProfileData
+                {
+                    id = string.Empty,
+                    firstname = string.Empty,
+                    lastname = string.Empty,
+                    bio = string.Empty,
+                    email = email,
+                    imageUrl = string.Empty,
+                    imageData = base64Image
+                };
+            }
         }
 
         public async Task<DTOProfileData?> Get(string identityId, string email)
